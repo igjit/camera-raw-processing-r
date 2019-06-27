@@ -1,0 +1,23 @@
+---
+title: "Rでできる - ゼロから作るRAW現像"
+author: |
+  [\@igjit](https://twitter.com/igjit)
+site: bookdown::bookdown_site
+documentclass: book
+output:
+  bookdown::gitbook: default
+---
+
+# はじめに {-}
+
+## これは何 {-}
+
+Moiz氏の本、[PythonとColabでできる - ゼロから作るRAW現像](https://moiz.booth.pm/items/1307327) の内容をRで実装しようとするものです。
+
+## ライセンス {-}
+
+この文章自体のライセンスはTBD
+
+文章中の現像結果の画像は、Moiz氏が
+https://github.com/moizumi99/camera_raw_processing
+で公開しているRAW画像の派生物です。
