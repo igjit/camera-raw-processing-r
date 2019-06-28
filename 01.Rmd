@@ -1,0 +1,29 @@
+# インストール
+
+実行にはいろいろ必要です。(Rでできる、と言いつつRAW画像の読み込みにPythonを使います。)
+
+- R
+    - [imager](https://github.com/dahtah/imager) (画像処理ライブラリ)
+    - [reticulate](https://rstudio.github.io/reticulate/) (RからPython呼ぶやつ)
+    - [tidyverse](https://www.tidyverse.org/) (宇宙)
+- Python
+    - [rawpy](https://pypi.org/project/rawpy/) (RAW画像読み込むやつ)
+
+## Dockerを使う
+
+インストールが面倒なものがあるので、[Docker](https://www.docker.com/)を使うのがおすすめです。
+
+全てインストール済みのDocker imageを用意しました。
+
+https://hub.docker.com/r/igjit/r-raw-processing
+
+docker pullして実行
+
+```sh
+docker pull igjit/r-raw-processing
+docker run --rm -p 8787:8787 -e PASSWORD=xxxx igjit/r-raw-processing
+```
+
+(`xxxx`は適宜変更してください。)
+
+ブラウザで http://localhost:8787/ にアクセスして、Username: `rstudio`、 Password: *(設定したもの)* を入力するとRStudioが使えるはずです。
