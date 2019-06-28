@@ -1,0 +1,9 @@
+version: "3"
+services:
+  r:
+    build:
+      context: .
+    volumes:
+      - .:/opt/work
+    working_dir: /opt/work
+    command: /usr/local/bin/R
