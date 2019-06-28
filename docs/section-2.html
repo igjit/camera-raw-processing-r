@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>2 基本的な処理 | Rでできる - ゼロから作るRAW現像</title>
+  <meta name="description" content="2 基本的な処理 | Rでできる - ゼロから作るRAW現像" />
+  <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="2 基本的な処理 | Rでできる - ゼロから作るRAW現像" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="2 基本的な処理 | Rでできる - ゼロから作るRAW現像" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="section-1.html">
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>はじめに</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#e38193e3828ce381afe4bd95"><i class="fa fa-check"></i>これは何</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#e383a9e382a4e382bbe383b3e382b9"><i class="fa fa-check"></i>ライセンス</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="section-1.html"><a href="section-1.html"><i class="fa fa-check"></i><b>1</b> インストール</a><ul>
+<li class="chapter" data-level="1.1" data-path="section-1.html"><a href="section-1.html#docker"><i class="fa fa-check"></i><b>1.1</b> Dockerを使う</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="section-2.html"><a href="section-2.html"><i class="fa fa-check"></i><b>2</b> 基本的な処理</a><ul>
+<li class="chapter" data-level="2.1" data-path="section-2.html"><a href="section-2.html#section-2.1"><i class="fa fa-check"></i><b>2.1</b> 準備</a><ul>
+<li class="chapter" data-level="2.1.1" data-path="section-2.html"><a href="section-2.html#raw"><i class="fa fa-check"></i><b>2.1.1</b> RAW画像の準備</a></li>
+<li class="chapter" data-level="2.1.2" data-path="section-2.html"><a href="section-2.html#raw"><i class="fa fa-check"></i><b>2.1.2</b> RAW画像の読み込み</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="section-2.html"><a href="section-2.html#section-2.2"><i class="fa fa-check"></i><b>2.2</b> 簡易デモザイク処理</a><ul>
+<li class="chapter" data-level="2.2.1" data-path="section-2.html"><a href="section-2.html#raw"><i class="fa fa-check"></i><b>2.2.1</b> RAW画像の確認</a></li>
+<li class="chapter" data-level="2.2.2" data-path="section-2.html"><a href="section-2.html#-1"><i class="fa fa-check"></i><b>2.2.2</b> 簡易デモザイク処理</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="section-2.html"><a href="section-2.html#section-2.3"><i class="fa fa-check"></i><b>2.3</b> ホワイトバランス補正</a><ul>
+<li class="chapter" data-level="2.3.1" data-path="section-2.html"><a href="section-2.html#section-2.3.1"><i class="fa fa-check"></i><b>2.3.1</b> ホワイトバランス補正処理</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="section-2.html"><a href="section-2.html#section-2.4"><i class="fa fa-check"></i><b>2.4</b> ブラックレベル補正</a><ul>
+<li class="chapter" data-level="2.4.1" data-path="section-2.html"><a href="section-2.html#section-2.4.1"><i class="fa fa-check"></i><b>2.4.1</b> ブラックレベル補正処理</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="section-2.html"><a href="section-2.html#section-2.5"><i class="fa fa-check"></i><b>2.5</b> ガンマ補正</a><ul>
+<li class="chapter" data-level="2.5.1" data-path="section-2.html"><a href="section-2.html#section-2.5.1"><i class="fa fa-check"></i><b>2.5.1</b> ガンマ補正とは</a></li>
+<li class="chapter" data-level="2.5.2" data-path="section-2.html"><a href="section-2.html#section-2.5.2"><i class="fa fa-check"></i><b>2.5.2</b> ガンマ補正処理</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Rでできる - ゼロから作るRAW現像</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="section-2" class="section level1">
+<h1><span class="header-section-number">2</span> 基本的な処理</h1>
+<div id="section-2.1" class="section level2">
+<h2><span class="header-section-number">2.1</span> 準備</h2>
+<div id="raw" class="section level3">
+<h3><span class="header-section-number">2.1.1</span> RAW画像の準備</h3>
+<p>RStudioのTerminalタブで以下を実行して、RAW画像ファイルをダウンロードします。</p>
+<pre class="sourceCode sh"><code class="sourceCode bash"><span class="fu">wget</span> https://github.com/moizumi99/camera_raw_processing/raw/master/chart.jpg</code></pre>
+</div>
+<div id="raw" class="section level3">
+<h3><span class="header-section-number">2.1.2</span> RAW画像の読み込み</h3>
+<p>必要なパッケージを読み込み</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
+<span class="kw">library</span>(imager)</code></pre>
+<p><code>reticulate::import</code>でPythonの<code>rawpy</code>モジュールをインポート</p>
+<pre class="sourceCode r"><code class="sourceCode r">rawpy &lt;-<span class="st"> </span><span class="kw">import</span>(<span class="st">&quot;rawpy&quot;</span>)</code></pre>
+<p>画像の読み込み</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_file &lt;-<span class="st"> &quot;chart.jpg&quot;</span>
+raw &lt;-<span class="st"> </span>rawpy<span class="op">$</span><span class="kw">imread</span>(raw_file)</code></pre>
+<p>画像データをRの行列に読み込み</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_array &lt;-<span class="st"> </span>raw<span class="op">$</span>raw_image</code></pre>
+<p>サイズの確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_array <span class="op">%&gt;%</span><span class="st"> </span>dim</code></pre>
+<pre><code>## [1] 2464 3280</code></pre>
+<p>画像を表示</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_array <span class="op">%&gt;%</span><span class="st"> </span>t <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+</div>
+<div id="section-2.2" class="section level2">
+<h2><span class="header-section-number">2.2</span> 簡易デモザイク処理</h2>
+<div id="raw" class="section level3">
+<h3><span class="header-section-number">2.2.1</span> RAW画像の確認</h3>
+<p>拡大表示</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_array <span class="op">%&gt;%</span><span class="st"> </span>t <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">imsub</span>(x <span class="op">%inr%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">2641</span>, <span class="dv">2700</span>), y <span class="op">%inr%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">1341</span>, <span class="dv">1400</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">plot</span>(<span class="dt">interpolate =</span> <span class="ot">FALSE</span>)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>RAW画像のBayer配列を確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw<span class="op">$</span>raw_pattern</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    2    3
+## [2,]    1    0</code></pre>
+<p>Bayer配列に対応するRGB画像を作リます。</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_color &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(<span class="kw">dim</span>(raw_array), <span class="dv">1</span>, <span class="dv">3</span>))
+raw_color[<span class="kw">c</span>(T, F), <span class="kw">c</span>(T, F), <span class="dv">1</span>, <span class="dv">3</span>] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(T, F), <span class="kw">c</span>(T, F)]
+raw_color[<span class="kw">c</span>(T, F), <span class="kw">c</span>(F, T), <span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(T, F), <span class="kw">c</span>(F, T)]
+raw_color[<span class="kw">c</span>(F, T), <span class="kw">c</span>(T, F), <span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(F, T), <span class="kw">c</span>(T, F)]
+raw_color[<span class="kw">c</span>(F, T), <span class="kw">c</span>(F, T), <span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(F, T), <span class="kw">c</span>(F, T)]</code></pre>
+<p>画像の行と列を入れ替える補助関数</p>
+<pre class="sourceCode r"><code class="sourceCode r">ta &lt;-<span class="st"> </span><span class="cf">function</span>(a) <span class="kw">aperm</span>(a, <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">4</span>))</code></pre>
+<p>表示</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_color <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>拡大表示</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_color <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">imsub</span>(x <span class="op">%inr%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">2641</span>, <span class="dv">2700</span>), y <span class="op">%inr%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">1341</span>, <span class="dv">1400</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">plot</span>(<span class="dt">interpolate =</span> <span class="ot">FALSE</span>)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="-1" class="section level3">
+<h3><span class="header-section-number">2.2.2</span> 簡易デモザイク処理</h3>
+<p>簡易デモザイク処理</p>
+<pre class="sourceCode r"><code class="sourceCode r">simple_demosaic &lt;-<span class="st"> </span><span class="cf">function</span>(raw_array) {
+  dms_img &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(<span class="kw">dim</span>(raw_array) <span class="op">/</span><span class="st"> </span><span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>))
+  dms_img[,, <span class="dv">1</span>, <span class="dv">3</span>] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(T, F), <span class="kw">c</span>(T, F)]
+  dms_img[,, <span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span>(raw_array[<span class="kw">c</span>(T, F), <span class="kw">c</span>(F, T)] <span class="op">+</span><span class="st"> </span>raw_array[<span class="kw">c</span>(F, T), <span class="kw">c</span>(T, F)]) <span class="op">/</span><span class="st"> </span><span class="dv">2</span>
+  dms_img[,, <span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(F, T), <span class="kw">c</span>(F, T)]
+  dms_img
+}</code></pre>
+<p>デモザイクして表示</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_array <span class="op">%&gt;%</span><span class="st"> </span>simple_demosaic <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+</div>
+</div>
+<div id="section-2.3" class="section level2">
+<h2><span class="header-section-number">2.3</span> ホワイトバランス補正</h2>
+<div id="section-2.3.1" class="section level3">
+<h3><span class="header-section-number">2.3.1</span> ホワイトバランス補正処理</h3>
+<p>ホワイトバランスのゲインを確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw<span class="op">$</span>camera_whitebalance</code></pre>
+<pre><code>## [1] 1.128 1.000 2.546 1.000</code></pre>
+<p>ホワイトバランス補正処理</p>
+<pre class="sourceCode r"><code class="sourceCode r">white_balance &lt;-<span class="st"> </span><span class="cf">function</span>(raw_array, wb_gain, raw_colors) {
+  norm &lt;-<span class="st"> </span>wb_gain[<span class="dv">2</span>]
+  gain_matrix &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(<span class="kw">dim</span>(raw_array)))
+  <span class="cf">for</span> (color <span class="cf">in</span> <span class="dv">0</span><span class="op">:</span><span class="dv">3</span>) {
+    gain_matrix[raw_colors <span class="op">==</span><span class="st"> </span>color] &lt;-<span class="st"> </span>wb_gain[color <span class="op">+</span><span class="st"> </span><span class="dv">1</span>] <span class="op">/</span><span class="st"> </span>norm
+  }
+  raw_array <span class="op">*</span><span class="st"> </span>gain_matrix
+}</code></pre>
+<p>ホワイトバランス補正して簡易デモザイク</p>
+<pre class="sourceCode r"><code class="sourceCode r">gain &lt;-<span class="st"> </span>raw<span class="op">$</span>camera_whitebalance
+colors &lt;-<span class="st"> </span>raw<span class="op">$</span>raw_colors
+dms_img &lt;-<span class="st"> </span><span class="kw">white_balance</span>(raw_array, gain, colors) <span class="op">%&gt;%</span><span class="st"> </span>simple_demosaic</code></pre>
+<p>画像を0と1の間でノーマライズする補助関数</p>
+<pre class="sourceCode r"><code class="sourceCode r">normalize &lt;-<span class="st"> </span><span class="cf">function</span>(img) {
+  img &lt;-<span class="st"> </span>img <span class="op">/</span><span class="st"> </span><span class="dv">1024</span>
+  img[img <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="dv">0</span>
+  img[img <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">1</span>
+  img
+}</code></pre>
+<p>表示</p>
+<pre class="sourceCode r"><code class="sourceCode r">dms_img <span class="op">%&gt;%</span><span class="st"> </span>normalize <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+</div>
+</div>
+<div id="section-2.4" class="section level2">
+<h2><span class="header-section-number">2.4</span> ブラックレベル補正</h2>
+<div id="section-2.4.1" class="section level3">
+<h3><span class="header-section-number">2.4.1</span> ブラックレベル補正処理</h3>
+<p>ブラックレベルを確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">blc &lt;-<span class="st"> </span>raw<span class="op">$</span>black_level_per_channel</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">blc</code></pre>
+<pre><code>## [1] 66 66 66 66</code></pre>
+<p>ブラックレベル補正処理</p>
+<pre class="sourceCode r"><code class="sourceCode r">black_level_correction &lt;-<span class="st"> </span><span class="cf">function</span>(raw_array, blc, pattern) {
+  pattern &lt;-<span class="st"> </span>pattern <span class="op">+</span><span class="st"> </span><span class="dv">1</span>
+  raw_array[<span class="kw">c</span>(T, F), <span class="kw">c</span>(T, F)] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(T, F), <span class="kw">c</span>(T, F)] <span class="op">-</span><span class="st"> </span>blc[pattern[<span class="dv">1</span>, <span class="dv">1</span>]]
+  raw_array[<span class="kw">c</span>(T, F), <span class="kw">c</span>(F, T)] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(T, F), <span class="kw">c</span>(F, T)] <span class="op">-</span><span class="st"> </span>blc[pattern[<span class="dv">1</span>, <span class="dv">2</span>]]
+  raw_array[<span class="kw">c</span>(F, T), <span class="kw">c</span>(T, F)] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(F, T), <span class="kw">c</span>(T, F)] <span class="op">-</span><span class="st"> </span>blc[pattern[<span class="dv">2</span>, <span class="dv">1</span>]]
+  raw_array[<span class="kw">c</span>(F, T), <span class="kw">c</span>(F, T)] &lt;-<span class="st"> </span>raw_array[<span class="kw">c</span>(F, T), <span class="kw">c</span>(F, T)] <span class="op">-</span><span class="st"> </span>blc[pattern[<span class="dv">2</span>, <span class="dv">2</span>]]
+  raw_array
+}</code></pre>
+<p>確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">dms_img &lt;-<span class="st"> </span>raw_array <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">black_level_correction</span>(blc, raw<span class="op">$</span>raw_pattern) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">white_balance</span>(raw<span class="op">$</span>camera_whitebalance, raw<span class="op">$</span>raw_colors) <span class="op">%&gt;%</span>
+<span class="st">  </span>simple_demosaic
+
+dms_img <span class="op">%&gt;%</span><span class="st"> </span>normalize <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+</div>
+</div>
+<div id="section-2.5" class="section level2">
+<h2><span class="header-section-number">2.5</span> ガンマ補正</h2>
+<div id="section-2.5.1" class="section level3">
+<h3><span class="header-section-number">2.5.1</span> ガンマ補正とは</h3>
+<p>ガンマカーブ</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">curve</span>(x <span class="op">^</span><span class="st"> </span><span class="fl">2.2</span>, <span class="dv">0</span>, <span class="dv">1</span>)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<p>ガンマ補正カーブ</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">curve</span>(x <span class="op">^</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="fl">2.2</span>), <span class="dv">0</span>, <span class="dv">1</span>)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+</div>
+<div id="section-2.5.2" class="section level3">
+<h3><span class="header-section-number">2.5.2</span> ガンマ補正処理</h3>
+<p>ガンマ補正処理</p>
+<pre class="sourceCode r"><code class="sourceCode r">gamma_correction &lt;-<span class="st"> </span><span class="cf">function</span>(input_img, gamma) {
+  input_img[input_img <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="dv">0</span>
+  input_img[input_img <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">1</span>
+  input_img <span class="op">^</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span>gamma)
+}</code></pre>
+<p>確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">dms_img <span class="op">%&gt;%</span><span class="st"> </span>normalize <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">gamma_correction</span>(<span class="fl">2.2</span>) <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="section-1.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
