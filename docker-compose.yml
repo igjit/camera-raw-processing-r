@@ -3,6 +3,8 @@ services:
   r:
     build:
       context: .
+    environment:
+      - "TZ=Asia/Tokyo"
     volumes:
       - .:/opt/work
     working_dir: /opt/work
