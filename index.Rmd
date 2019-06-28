@@ -2,6 +2,7 @@
 title: "Rでできる - ゼロから作るRAW現像"
 author: |
   [\@igjit](https://twitter.com/igjit)
+date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 documentclass: book
 output:
