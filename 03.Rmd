@@ -1,0 +1,61 @@
+# 重要な処理
+
+## 線形補間デモザイク
+
+### 簡易デモザイク処理の問題点
+
+簡易デモザイク処理を使ったRAW現像
+
+```{r cache=TRUE}
+raw_array <- raw$raw_image
+white_level <- 1024
+
+wb_raw <- raw_array %>%
+  black_level_correction(raw$black_level_per_channel, raw$raw_pattern) %>%
+  white_balance(raw$camera_whitebalance, raw$raw_colors)
+dms_img <- wb_raw %>%
+  simple_demosaic %>%
+  `/`(white_level)
+gmm_img <- gamma_correction(dms_img, 2.2)
+```
+
+表示
+
+```{r cache=TRUE}
+gmm_img %>% ta %>% as.cimg %>% plot
+```
+
+現像後のサイズ
+
+```{r}
+dim(gmm_img) %>% head(2)
+```
+
+RAWデータのサイズ
+
+```{r}
+dim(raw_array)
+```
+
+JPEG画像の読み込み
+
+```{r}
+jpg_img <- imager::load.image(raw_file)
+```
+
+拡大して比較
+
+```{r cache=TRUE}
+x1 <- 836
+y1 <- 741
+dx1 <- 100
+dy1 <- 100
+
+par(mfrow = c(1, 2))
+gmm_img %>% ta %>% as.cimg %>%
+  imsub(x %inr% c(x1, x1 + dx1), y %inr% c(y1, y1 + dy1)) %>%
+  plot(interpolate = FALSE, main = "簡易デモザイク結果")
+jpg_img %>%
+  imsub(x %inr% (c(x1, x1 + dx1) * 2), y %inr% (c(y1, y1 + dy1) * 2)) %>%
+  plot(interpolate = FALSE, main = "JPEG画像")
+```
