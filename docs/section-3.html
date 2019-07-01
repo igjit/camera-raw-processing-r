@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Rでできる - ゼロから作るRAW現像</title>
-  <meta name="description" content="Rでできる - ゼロから作るRAW現像" />
+  <title>3 重要な処理 | Rでできる - ゼロから作るRAW現像</title>
+  <meta name="description" content="3 重要な処理 | Rでできる - ゼロから作るRAW現像" />
   <meta name="generator" content="bookdown 0.11 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Rでできる - ゼロから作るRAW現像" />
+  <meta property="og:title" content="3 重要な処理 | Rでできる - ゼロから作るRAW現像" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Rでできる - ゼロから作るRAW現像" />
+  <meta name="twitter:title" content="3 重要な処理 | Rでできる - ゼロから作るRAW現像" />
   
   
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
+<link rel="prev" href="section-2.html">
 
-<link rel="next" href="section-1.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -173,24 +173,50 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Rでできる - ゼロから作るRAW現像</h1>
-<p class="author"><em><a href="https://twitter.com/igjit">@igjit</a></em></p>
-<p class="date"><em>2019-07-01</em></p>
-</div>
-<div id="e381afe38198e38281e381ab" class="section level1 unnumbered">
-<h1>はじめに</h1>
-<div id="e38193e3828ce381afe4bd95" class="section level2 unnumbered">
-<h2>これは何</h2>
-<p>Moiz氏の本、<a href="https://moiz.booth.pm/items/1307327">PythonとColabでできる - ゼロから作るRAW現像</a> の内容をRで実装しようとするものです。</p>
-</div>
-<div id="e383a9e382a4e382bbe383b3e382b9" class="section level2 unnumbered">
-<h2>ライセンス</h2>
-<p>この文章自体のライセンスはTBD</p>
-<p>文章中の現像結果の画像は、Moiz氏が
-<a href="https://github.com/moizumi99/camera_raw_processing" class="uri">https://github.com/moizumi99/camera_raw_processing</a>
-で公開しているRAW画像の派生物です。</p>
+<div id="section-3" class="section level1">
+<h1><span class="header-section-number">3</span> 重要な処理</h1>
+<div id="section-3.1" class="section level2">
+<h2><span class="header-section-number">3.1</span> 線形補間デモザイク</h2>
+<div id="section-3.1.1" class="section level3">
+<h3><span class="header-section-number">3.1.1</span> 簡易デモザイク処理の問題点</h3>
+<p>簡易デモザイク処理を使ったRAW現像</p>
+<pre class="sourceCode r"><code class="sourceCode r">raw_array &lt;-<span class="st"> </span>raw<span class="op">$</span>raw_image
+white_level &lt;-<span class="st"> </span><span class="dv">1024</span>
 
+wb_raw &lt;-<span class="st"> </span>raw_array <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">black_level_correction</span>(raw<span class="op">$</span>black_level_per_channel, raw<span class="op">$</span>raw_pattern) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">white_balance</span>(raw<span class="op">$</span>camera_whitebalance, raw<span class="op">$</span>raw_colors)
+dms_img &lt;-<span class="st"> </span>wb_raw <span class="op">%&gt;%</span>
+<span class="st">  </span>simple_demosaic <span class="op">%&gt;%</span>
+<span class="st">  `</span><span class="dt">/</span><span class="st">`</span>(white_level)
+gmm_img &lt;-<span class="st"> </span><span class="kw">gamma_correction</span>(dms_img, <span class="fl">2.2</span>)</code></pre>
+<p>表示</p>
+<pre class="sourceCode r"><code class="sourceCode r">gmm_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p>現像後のサイズ</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(gmm_img) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">2</span>)</code></pre>
+<pre><code>## [1] 1232 1640</code></pre>
+<p>RAWデータのサイズ</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(raw_array)</code></pre>
+<pre><code>## [1] 2464 3280</code></pre>
+<p>JPEG画像の読み込み</p>
+<pre class="sourceCode r"><code class="sourceCode r">jpg_img &lt;-<span class="st"> </span>imager<span class="op">::</span><span class="kw">load.image</span>(raw_file)</code></pre>
+<p>拡大して比較</p>
+<pre class="sourceCode r"><code class="sourceCode r">x1 &lt;-<span class="st"> </span><span class="dv">836</span>
+y1 &lt;-<span class="st"> </span><span class="dv">741</span>
+dx1 &lt;-<span class="st"> </span><span class="dv">100</span>
+dy1 &lt;-<span class="st"> </span><span class="dv">100</span>
+
+<span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))
+gmm_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">imsub</span>(x <span class="op">%inr%</span><span class="st"> </span><span class="kw">c</span>(x1, x1 <span class="op">+</span><span class="st"> </span>dx1), y <span class="op">%inr%</span><span class="st"> </span><span class="kw">c</span>(y1, y1 <span class="op">+</span><span class="st"> </span>dy1)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">plot</span>(<span class="dt">interpolate =</span> <span class="ot">FALSE</span>, <span class="dt">main =</span> <span class="st">&quot;簡易デモザイク結果&quot;</span>)
+jpg_img <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">imsub</span>(x <span class="op">%inr%</span><span class="st"> </span>(<span class="kw">c</span>(x1, x1 <span class="op">+</span><span class="st"> </span>dx1) <span class="op">*</span><span class="st"> </span><span class="dv">2</span>), y <span class="op">%inr%</span><span class="st"> </span>(<span class="kw">c</span>(y1, y1 <span class="op">+</span><span class="st"> </span>dy1) <span class="op">*</span><span class="st"> </span><span class="dv">2</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">plot</span>(<span class="dt">interpolate =</span> <span class="ot">FALSE</span>, <span class="dt">main =</span> <span class="st">&quot;JPEG画像&quot;</span>)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+
+</div>
 </div>
 </div>
             </section>
@@ -198,8 +224,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           </div>
         </div>
       </div>
+<a href="section-2.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 
-<a href="section-1.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
