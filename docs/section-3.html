@@ -23,7 +23,7 @@
 
 
 
-<meta name="date" content="2019-07-01" />
+<meta name="date" content="2019-07-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -154,6 +154,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3" data-path="section-3.html"><a href="section-3.html"><i class="fa fa-check"></i><b>3</b> 重要な処理</a><ul>
 <li class="chapter" data-level="3.1" data-path="section-3.html"><a href="section-3.html#section-3.1"><i class="fa fa-check"></i><b>3.1</b> 線形補間デモザイク</a><ul>
 <li class="chapter" data-level="3.1.1" data-path="section-3.html"><a href="section-3.html#section-3.1.1"><i class="fa fa-check"></i><b>3.1.1</b> 簡易デモザイク処理の問題点</a></li>
+<li class="chapter" data-level="3.1.2" data-path="section-3.html"><a href="section-3.html#section-3.1.2"><i class="fa fa-check"></i><b>3.1.2</b> 線形補完法</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -215,6 +216,53 @@ jpg_img <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">imsub</span>(x <span class="op">%inr%</span><span class="st"> </span>(<span class="kw">c</span>(x1, x1 <span class="op">+</span><span class="st"> </span>dx1) <span class="op">*</span><span class="st"> </span><span class="dv">2</span>), y <span class="op">%inr%</span><span class="st"> </span>(<span class="kw">c</span>(y1, y1 <span class="op">+</span><span class="st"> </span>dy1) <span class="op">*</span><span class="st"> </span><span class="dv">2</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">plot</span>(<span class="dt">interpolate =</span> <span class="ot">FALSE</span>, <span class="dt">main =</span> <span class="st">&quot;JPEG画像&quot;</span>)</code></pre>
 <p><img src="_main_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+</div>
+<div id="section-3.1.2" class="section level3">
+<h3><span class="header-section-number">3.1.2</span> 線形補完法</h3>
+<p>線形補間デモザイク</p>
+<pre class="sourceCode r"><code class="sourceCode r">demosaic &lt;-<span class="st"> </span><span class="cf">function</span>(raw_array, raw_colors, pattern) {
+  dms_img &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(<span class="kw">dim</span>(raw_array), <span class="dv">1</span>, <span class="dv">3</span>))
+
+  g &lt;-<span class="st"> </span>raw_array
+  g[raw_colors <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">2</span>)] &lt;-<span class="st"> </span><span class="dv">0</span>
+  g_filter &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>,
+                      <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">1</span>,
+                      <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="dv">4</span>,
+                    <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">1</span>))
+  <span class="kw">G</span>(dms_img) &lt;-<span class="st"> </span><span class="kw">convolve</span>(<span class="kw">as.cimg</span>(g), g_filter)
+
+  r &lt;-<span class="st"> </span>raw_array
+  r[raw_colors <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="dv">0</span>
+  r_filter &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">/</span><span class="dv">4</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">2</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">4</span>,
+                      <span class="dv">1</span><span class="op">/</span><span class="dv">2</span>,   <span class="dv">1</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">2</span>,
+                      <span class="dv">1</span><span class="op">/</span><span class="dv">4</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">2</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">4</span>),
+                    <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">1</span>))
+  <span class="kw">R</span>(dms_img) &lt;-<span class="st"> </span><span class="kw">convolve</span>(<span class="kw">as.cimg</span>(r), r_filter)
+
+  b &lt;-<span class="st"> </span>raw_array
+  b[raw_colors <span class="op">!=</span><span class="st"> </span><span class="dv">2</span>] &lt;-<span class="st"> </span><span class="dv">0</span>
+  <span class="co"># 青のフィルターは赤と共通</span>
+  <span class="kw">B</span>(dms_img) &lt;-<span class="st"> </span><span class="kw">convolve</span>(<span class="kw">as.cimg</span>(b), r_filter)
+
+  dms_img
+}</code></pre>
+<p>デモザイク処理</p>
+<pre class="sourceCode r"><code class="sourceCode r">dms_full_img &lt;-<span class="st"> </span>wb_raw <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">demosaic</span>(raw<span class="op">$</span>raw_colors, raw<span class="op">$</span>raw_pattern)</code></pre>
+<p>サイズを確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">dms_full_img <span class="op">%&gt;%</span><span class="st"> </span>dim <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">2</span>)</code></pre>
+<pre><code>## [1] 2464 3280</code></pre>
+<p>ガンマ補正処理</p>
+<pre class="sourceCode r"><code class="sourceCode r">gmm_full_img &lt;-<span class="st"> </span><span class="kw">gamma_correction</span>(dms_full_img <span class="op">/</span><span class="st"> </span>white_level, <span class="fl">2.2</span>)</code></pre>
+<p>比較</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))
+gmm_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">imsub</span>(x <span class="op">%inr%</span><span class="st"> </span><span class="kw">c</span>(x1, x1 <span class="op">+</span><span class="st"> </span>dx1), y <span class="op">%inr%</span><span class="st"> </span><span class="kw">c</span>(y1, y1 <span class="op">+</span><span class="st"> </span>dy1)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">plot</span>(<span class="dt">interpolate =</span> <span class="ot">FALSE</span>, <span class="dt">main =</span> <span class="st">&quot;簡易デモザイク&quot;</span>)
+gmm_full_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">imsub</span>(x <span class="op">%inr%</span><span class="st"> </span>(<span class="kw">c</span>(x1, x1 <span class="op">+</span><span class="st"> </span>dx1) <span class="op">*</span><span class="st"> </span><span class="dv">2</span>), y <span class="op">%inr%</span><span class="st"> </span>(<span class="kw">c</span>(y1, y1 <span class="op">+</span><span class="st"> </span>dy1) <span class="op">*</span><span class="st"> </span><span class="dv">2</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">plot</span>(<span class="dt">interpolate =</span> <span class="ot">FALSE</span>, <span class="dt">main =</span> <span class="st">&quot;線形補間デモザイク&quot;</span>)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
 
 </div>
 </div>
