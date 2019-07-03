@@ -59,3 +59,67 @@ jpg_img %>%
   imsub(x %inr% (c(x1, x1 + dx1) * 2), y %inr% (c(y1, y1 + dy1) * 2)) %>%
   plot(interpolate = FALSE, main = "JPEG画像")
 ```
+
+### 線形補完法
+
+線形補間デモザイク
+
+```{r}
+demosaic <- function(raw_array, raw_colors, pattern) {
+  dms_img <- array(0, c(dim(raw_array), 1, 3))
+
+  g <- raw_array
+  g[raw_colors %in% c(0, 2)] <- 0
+  g_filter <- array(c(0, 1, 0,
+                      1, 4, 1,
+                      0, 1, 0) / 4,
+                    c(3, 3, 1, 1))
+  G(dms_img) <- convolve(as.cimg(g), g_filter)
+
+  r <- raw_array
+  r[raw_colors != 0] <- 0
+  r_filter <- array(c(1/4, 1/2, 1/4,
+                      1/2,   1, 1/2,
+                      1/4, 1/2, 1/4),
+                    c(3, 3, 1, 1))
+  R(dms_img) <- convolve(as.cimg(r), r_filter)
+
+  b <- raw_array
+  b[raw_colors != 2] <- 0
+  # 青のフィルターは赤と共通
+  B(dms_img) <- convolve(as.cimg(b), r_filter)
+
+  dms_img
+}
+```
+
+デモザイク処理
+
+```{r cache=TRUE}
+dms_full_img <- wb_raw %>%
+  demosaic(raw$raw_colors, raw$raw_pattern)
+```
+
+サイズを確認
+
+```{r}
+dms_full_img %>% dim %>% head(2)
+```
+
+ガンマ補正処理
+
+```{r cache=TRUE}
+gmm_full_img <- gamma_correction(dms_full_img / white_level, 2.2)
+```
+
+比較
+
+```{r cache=TRUE}
+par(mfrow = c(1, 2))
+gmm_img %>% ta %>% as.cimg %>%
+  imsub(x %inr% c(x1, x1 + dx1), y %inr% c(y1, y1 + dy1)) %>%
+  plot(interpolate = FALSE, main = "簡易デモザイク")
+gmm_full_img %>% ta %>% as.cimg %>%
+  imsub(x %inr% (c(x1, x1 + dx1) * 2), y %inr% (c(y1, y1 + dy1) * 2)) %>%
+  plot(interpolate = FALSE, main = "線形補間デモザイク")
+```
