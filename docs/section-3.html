@@ -23,7 +23,7 @@
 
 
 
-<meta name="date" content="2019-07-03" />
+<meta name="date" content="2019-07-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -156,6 +156,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.1.1" data-path="section-3.html"><a href="section-3.html#section-3.1.1"><i class="fa fa-check"></i><b>3.1.1</b> 簡易デモザイク処理の問題点</a></li>
 <li class="chapter" data-level="3.1.2" data-path="section-3.html"><a href="section-3.html#section-3.1.2"><i class="fa fa-check"></i><b>3.1.2</b> 線形補完法</a></li>
 </ul></li>
+<li class="chapter" data-level="3.2" data-path="section-3.html"><a href="section-3.html#section-3.2"><i class="fa fa-check"></i><b>3.2</b> 欠陥画素補正</a></li>
+<li class="chapter" data-level="3.3" data-path="section-3.html"><a href="section-3.html#section-3.3"><i class="fa fa-check"></i><b>3.3</b> カラーマトリクス補正</a></li>
 </ul></li>
 </ul>
 
@@ -263,8 +265,41 @@ gmm_full_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span cla
 <span class="st">  </span><span class="kw">imsub</span>(x <span class="op">%inr%</span><span class="st"> </span>(<span class="kw">c</span>(x1, x1 <span class="op">+</span><span class="st"> </span>dx1) <span class="op">*</span><span class="st"> </span><span class="dv">2</span>), y <span class="op">%inr%</span><span class="st"> </span>(<span class="kw">c</span>(y1, y1 <span class="op">+</span><span class="st"> </span>dy1) <span class="op">*</span><span class="st"> </span><span class="dv">2</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">plot</span>(<span class="dt">interpolate =</span> <span class="ot">FALSE</span>, <span class="dt">main =</span> <span class="st">&quot;線形補間デモザイク&quot;</span>)</code></pre>
 <p><img src="_main_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
-
 </div>
+</div>
+<div id="section-3.2" class="section level2">
+<h2><span class="header-section-number">3.2</span> 欠陥画素補正</h2>
+<p><em>TODO</em></p>
+</div>
+<div id="section-3.3" class="section level2">
+<h2><span class="header-section-number">3.3</span> カラーマトリクス補正</h2>
+<p>カラーマトリクス (CCM: Color Correction Matrix)</p>
+<pre class="sourceCode r"><code class="sourceCode r">color_matrix &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">6022</span>, <span class="dv">-2314</span>, <span class="dv">394</span>,
+                         <span class="dv">-936</span>, <span class="dv">4728</span>, <span class="dv">310</span>,
+                         <span class="dv">300</span>, <span class="dv">-4324</span>, <span class="dv">8126</span>),
+                       <span class="dv">3</span>, <span class="dv">3</span>, <span class="dt">byrow =</span> <span class="ot">TRUE</span>) <span class="op">/</span><span class="st"> </span><span class="dv">4096</span></code></pre>
+<p>カラーマトリクス補正処理</p>
+<pre class="sourceCode r"><code class="sourceCode r">color_correction_matrix &lt;-<span class="st"> </span><span class="cf">function</span>(rgb_array, color_matrix) {
+  ccm_img &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">dim</span>(rgb_array))
+  <span class="cf">for</span> (col <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>) {
+    ccm_img[,, <span class="dv">1</span>, col] &lt;-
+<span class="st">      </span>color_matrix[col, <span class="dv">1</span>] <span class="op">*</span><span class="st"> </span><span class="kw">R</span>(rgb_array) <span class="op">+</span>
+<span class="st">      </span>color_matrix[col, <span class="dv">2</span>] <span class="op">*</span><span class="st"> </span><span class="kw">G</span>(rgb_array) <span class="op">+</span>
+<span class="st">      </span>color_matrix[col, <span class="dv">3</span>] <span class="op">*</span><span class="st"> </span><span class="kw">B</span>(rgb_array)
+  }
+  ccm_img
+}</code></pre>
+<p>比較</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))
+gmm_full_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">plot</span>(<span class="dt">main =</span> <span class="st">&quot;CCM補正なし&quot;</span>)
+dms_full_img <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">color_correction_matrix</span>(color_matrix) <span class="op">%&gt;%</span>
+<span class="st">  `</span><span class="dt">/</span><span class="st">`</span>(white_level) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">gamma_correction</span>(<span class="fl">2.2</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">plot</span>(<span class="dt">main =</span> <span class="st">&quot;CCM補正あり&quot;</span>)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-40-1.png" width="672" /></p>
+
 </div>
 </div>
             </section>
