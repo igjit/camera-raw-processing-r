@@ -123,3 +123,46 @@ gmm_full_img %>% ta %>% as.cimg %>%
   imsub(x %inr% (c(x1, x1 + dx1) * 2), y %inr% (c(y1, y1 + dy1) * 2)) %>%
   plot(interpolate = FALSE, main = "線形補間デモザイク")
 ```
+
+## 欠陥画素補正
+
+*TODO*
+
+## カラーマトリクス補正
+
+カラーマトリクス (CCM: Color Correction Matrix)
+
+```{r}
+color_matrix <- matrix(c(6022, -2314, 394,
+                         -936, 4728, 310,
+                         300, -4324, 8126),
+                       3, 3, byrow = TRUE) / 4096
+```
+
+カラーマトリクス補正処理
+
+```{r}
+color_correction_matrix <- function(rgb_array, color_matrix) {
+  ccm_img <- array(0, dim(rgb_array))
+  for (col in 1:3) {
+    ccm_img[,, 1, col] <-
+      color_matrix[col, 1] * R(rgb_array) +
+      color_matrix[col, 2] * G(rgb_array) +
+      color_matrix[col, 3] * B(rgb_array)
+  }
+  ccm_img
+}
+```
+
+比較
+
+```{r cache=TRUE}
+par(mfrow = c(1, 2))
+gmm_full_img %>% ta %>% as.cimg %>%
+  plot(main = "CCM補正なし")
+dms_full_img %>%
+  color_correction_matrix(color_matrix) %>%
+  `/`(white_level) %>%
+  gamma_correction(2.2) %>%
+  ta %>% as.cimg %>% plot(main = "CCM補正あり")
+```
