@@ -166,3 +166,34 @@ dms_full_img %>%
   gamma_correction(2.2) %>%
   ta %>% as.cimg %>% plot(main = "CCM補正あり")
 ```
+
+## シェーディング補正
+
+### レンズシェーディングの確認
+
+RAW画像の読み込み
+
+```{r}
+raw_file <- "flat.jpg"
+raw <- rawpy$imread(raw_file)
+raw_array <- raw$raw_image
+```
+
+RAW現像処理
+
+```{r cache=TRUE}
+blc_raw <- raw_array %>%
+  black_level_correction(raw$black_level_per_channel, raw$raw_pattern)
+original_img <- blc_raw %>%
+  white_balance(raw$camera_whitebalance, raw$raw_colors) %>%
+  demosaic(raw$raw_colors, raw$raw_pattern) %>%
+  color_correction_matrix(color_matrix) %>%
+  `/`(white_level) %>%
+  gamma_correction(2.2)
+```
+
+画像表示
+
+```{r cache=TRUE}
+original_img %>% ta %>% as.cimg %>% plot
+```
