@@ -197,3 +197,33 @@ original_img <- blc_raw %>%
 ```{r cache=TRUE}
 original_img %>% ta %>% as.cimg %>% plot
 ```
+
+明るさの横方向の変化
+
+```{r message=FALSE}
+library(tidyverse)
+
+w <- ncol(raw_array)
+h <- nrow(raw_array)
+center_y <- h / 2
+center_x <- w / 2
+y <- center_y - 16
+
+horizontal_shading_profile <- function(img, w, y) {
+  seq(1, w - 32, 32) %>%
+    map_dfr(function(x) list(r = mean(img[y:(y + 32), x:(x + 32), 1, 1]),
+                             g = mean(img[y:(y + 32), x:(x + 32), 1, 2]),
+                             b = mean(img[y:(y + 32), x:(x + 32), 1, 3]))) %>%
+    map_dfr(~ . / max(.)) %>%
+    mutate(pos = 1:n())
+}
+```
+
+```{r cache=TRUE}
+shading_profile <- horizontal_shading_profile(original_img, w, y)
+
+ggplot(gather(shading_profile, "color", "value", -pos), aes(x = pos, y = value)) +
+  geom_line(aes(color = color)) +
+  ylim(0, 1) +
+  scale_color_manual(values = c(r = "red", g = "green", b = "blue"))
+```
