@@ -23,7 +23,7 @@
 
 
 
-<meta name="date" content="2019-07-23" />
+<meta name="date" content="2019-08-17" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -160,6 +160,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.3" data-path="section-3.html"><a href="section-3.html#section-3.3"><i class="fa fa-check"></i><b>3.3</b> カラーマトリクス補正</a></li>
 <li class="chapter" data-level="3.4" data-path="section-3.html"><a href="section-3.html#section-3.4"><i class="fa fa-check"></i><b>3.4</b> シェーディング補正</a><ul>
 <li class="chapter" data-level="3.4.1" data-path="section-3.html"><a href="section-3.html#section-3.4.1"><i class="fa fa-check"></i><b>3.4.1</b> レンズシェーディングの確認</a></li>
+<li class="chapter" data-level="3.4.2" data-path="section-3.html"><a href="section-3.html#section-3.4.2"><i class="fa fa-check"></i><b>3.4.2</b> レンズシェーディングのモデル化</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -323,6 +324,62 @@ original_img &lt;-<span class="st"> </span>blc_raw <span class="op">%&gt;%</span
 <p>画像表示</p>
 <pre class="sourceCode r"><code class="sourceCode r">original_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
 <p><img src="_main_files/figure-html/unnamed-chunk-43-1.png" width="672" /></p>
+<p>明るさの横方向の変化</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyverse)
+
+w &lt;-<span class="st"> </span><span class="kw">ncol</span>(raw_array)
+h &lt;-<span class="st"> </span><span class="kw">nrow</span>(raw_array)
+center_y &lt;-<span class="st"> </span>h <span class="op">/</span><span class="st"> </span><span class="dv">2</span>
+center_x &lt;-<span class="st"> </span>w <span class="op">/</span><span class="st"> </span><span class="dv">2</span>
+y &lt;-<span class="st"> </span>center_y <span class="op">-</span><span class="st"> </span><span class="dv">16</span>
+
+horizontal_shading_profile &lt;-<span class="st"> </span><span class="cf">function</span>(img, w, y) {
+  <span class="kw">seq</span>(<span class="dv">1</span>, w <span class="op">-</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">32</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">map_dfr</span>(<span class="cf">function</span>(x) <span class="kw">list</span>(<span class="dt">r =</span> <span class="kw">mean</span>(img[y<span class="op">:</span>(y <span class="op">+</span><span class="st"> </span><span class="dv">32</span>), x<span class="op">:</span>(x <span class="op">+</span><span class="st"> </span><span class="dv">32</span>), <span class="dv">1</span>, <span class="dv">1</span>]),
+                             <span class="dt">g =</span> <span class="kw">mean</span>(img[y<span class="op">:</span>(y <span class="op">+</span><span class="st"> </span><span class="dv">32</span>), x<span class="op">:</span>(x <span class="op">+</span><span class="st"> </span><span class="dv">32</span>), <span class="dv">1</span>, <span class="dv">2</span>]),
+                             <span class="dt">b =</span> <span class="kw">mean</span>(img[y<span class="op">:</span>(y <span class="op">+</span><span class="st"> </span><span class="dv">32</span>), x<span class="op">:</span>(x <span class="op">+</span><span class="st"> </span><span class="dv">32</span>), <span class="dv">1</span>, <span class="dv">3</span>]))) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">map_dfr</span>(<span class="op">~</span><span class="st"> </span>. <span class="op">/</span><span class="st"> </span><span class="kw">max</span>(.)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">pos =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">n</span>())
+}</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">shading_profile &lt;-<span class="st"> </span><span class="kw">horizontal_shading_profile</span>(original_img, w, y)
+
+<span class="kw">ggplot</span>(<span class="kw">gather</span>(shading_profile, <span class="st">&quot;color&quot;</span>, <span class="st">&quot;value&quot;</span>, <span class="op">-</span>pos), <span class="kw">aes</span>(<span class="dt">x =</span> pos, <span class="dt">y =</span> value)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">color =</span> color)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="dt">r =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">g =</span> <span class="st">&quot;green&quot;</span>, <span class="dt">b =</span> <span class="st">&quot;blue&quot;</span>))</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-45-1.png" width="672" /></p>
+</div>
+<div id="section-3.4.2" class="section level3">
+<h3><span class="header-section-number">3.4.2</span> レンズシェーディングのモデル化</h3>
+<pre class="sourceCode r"><code class="sourceCode r">value_df &lt;-<span class="st"> </span><span class="kw">map_dfr</span>(<span class="kw">seq</span>(<span class="dv">1</span>, h <span class="op">-</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">32</span>), <span class="cf">function</span>(y) {
+  <span class="kw">map_dfr</span>(<span class="kw">seq</span>(<span class="dv">1</span>, w <span class="op">-</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">32</span>), <span class="cf">function</span>(x) {
+    xx &lt;-<span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">16</span>
+    yy &lt;-<span class="st"> </span>y <span class="op">+</span><span class="st"> </span><span class="dv">16</span>
+    <span class="kw">list</span>(
+      <span class="dt">xx =</span> xx,
+      <span class="dt">yy =</span> yy,
+      <span class="dt">radial =</span> (yy <span class="op">-</span><span class="st"> </span>center_y) <span class="op">*</span><span class="st"> </span>(yy <span class="op">-</span><span class="st"> </span>center_y) <span class="op">+</span><span class="st"> </span>(xx <span class="op">-</span><span class="st"> </span>center_x) <span class="op">*</span><span class="st"> </span>(xx <span class="op">-</span><span class="st"> </span>center_x),
+      <span class="dt">b =</span> <span class="kw">mean</span>(blc_raw[<span class="kw">seq</span>(y, y <span class="op">+</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">2</span>), <span class="kw">seq</span>(x, x <span class="op">+</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">2</span>)]),
+      <span class="dt">g1 =</span> <span class="kw">mean</span>(blc_raw[<span class="kw">seq</span>(y, y <span class="op">+</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">2</span>), <span class="kw">seq</span>(x <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, x <span class="op">+</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">2</span>)]),
+      <span class="dt">g2 =</span> <span class="kw">mean</span>(blc_raw[<span class="kw">seq</span>(y <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, y <span class="op">+</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">2</span>), <span class="kw">seq</span>(x, x <span class="op">+</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">2</span>)]),
+      <span class="dt">r =</span> <span class="kw">mean</span>(blc_raw[<span class="kw">seq</span>(y <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, y <span class="op">+</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">2</span>), <span class="kw">seq</span>(x <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, x <span class="op">+</span><span class="st"> </span><span class="dv">32</span>, <span class="dv">2</span>)]))
+  })
+})</code></pre>
+<p>最大値でノーマライズしてグラフにして確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">norm_value_df &lt;-<span class="st"> </span>value_df <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">transmute</span>(radial,
+            <span class="dt">b =</span> b <span class="op">/</span><span class="st"> </span><span class="kw">max</span>(b),
+            <span class="dt">g1 =</span> g1 <span class="op">/</span><span class="st"> </span><span class="kw">max</span>(g1),
+            <span class="dt">g2 =</span> g2 <span class="op">/</span><span class="st"> </span><span class="kw">max</span>(g2),
+            <span class="dt">r =</span> r <span class="op">/</span><span class="st"> </span><span class="kw">max</span>(r))
+
+colors &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">r =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">g1 =</span> <span class="st">&quot;green&quot;</span>, <span class="dt">g2 =</span> <span class="st">&quot;green&quot;</span>, <span class="dt">b =</span> <span class="st">&quot;blue&quot;</span>)
+
+<span class="kw">ggplot</span>(<span class="kw">gather</span>(norm_value_df, <span class="st">&quot;color&quot;</span>, <span class="st">&quot;value&quot;</span>, <span class="op">-</span>radial), <span class="kw">aes</span>(<span class="dt">x =</span> radial, <span class="dt">y =</span> value)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> color)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> colors)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-47-1.png" width="672" /></p>
 
 </div>
 </div>
