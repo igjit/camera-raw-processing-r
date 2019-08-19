@@ -23,7 +23,7 @@
 
 
 
-<meta name="date" content="2019-08-18" />
+<meta name="date" content="2019-08-19" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -390,6 +390,30 @@ colors &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">
 <span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> color)) <span class="op">+</span>
 <span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> colors)</code></pre>
 <p><img src="_main_files/figure-html/unnamed-chunk-48-1.png" width="672" /></p>
+<p>1次式で近似</p>
+<pre class="sourceCode r"><code class="sourceCode r">models &lt;-<span class="st"> </span><span class="kw">colnames</span>(inv_norm_value_df)[<span class="op">-</span><span class="dv">1</span>] <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">paste</span>(<span class="st">&quot;~ radial&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">map</span>(<span class="op">~</span><span class="st"> </span><span class="kw">lm</span>(<span class="kw">as.formula</span>(.), inv_norm_value_df))
+
+model_df &lt;-<span class="st"> </span>models <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">map_dfr</span>(<span class="op">~</span><span class="st"> </span><span class="kw">as.list</span>(.<span class="op">$</span>coefficients)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">transmute</span>(<span class="dt">color =</span> <span class="kw">colnames</span>(inv_norm_value_df)[<span class="op">-</span><span class="dv">1</span>], <span class="dt">intercept =</span> <span class="st">`</span><span class="dt">(Intercept)</span><span class="st">`</span>, <span class="dt">slope =</span> radial)</code></pre>
+<p>値を確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">model_df</code></pre>
+<pre><code>## # A tibble: 4 x 3
+##   color intercept       slope
+##   &lt;chr&gt;     &lt;dbl&gt;       &lt;dbl&gt;
+## 1 b         0.939 0.000000655
+## 2 g1        0.962 0.000000653
+## 3 g2        0.964 0.000000648
+## 4 r         0.909 0.00000100</code></pre>
+<p>プロット</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(model_df) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_abline</span>(<span class="kw">aes</span>(<span class="dt">intercept =</span> intercept, <span class="dt">slope =</span> slope, <span class="dt">color =</span> color)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">xlim</span>(<span class="dv">0</span>, <span class="fl">4e6</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">6</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> colors)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-51-1.png" width="672" /></p>
 
 </div>
 </div>
