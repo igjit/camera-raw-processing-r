@@ -277,3 +277,31 @@ ggplot(gather(inv_norm_value_df, "color", "value", -radial), aes(x = radial, y =
   geom_point(aes(color = color)) +
   scale_color_manual(values = colors)
 ```
+
+1次式で近似
+
+```{r}
+models <- colnames(inv_norm_value_df)[-1] %>%
+  paste("~ radial") %>%
+  map(~ lm(as.formula(.), inv_norm_value_df))
+
+model_df <- models %>%
+  map_dfr(~ as.list(.$coefficients)) %>%
+  transmute(color = colnames(inv_norm_value_df)[-1], intercept = `(Intercept)`, slope = radial)
+```
+
+値を確認
+
+```{r}
+model_df
+```
+
+プロット
+
+```{r}
+ggplot(model_df) +
+  geom_abline(aes(intercept = intercept, slope = slope, color = color)) +
+  xlim(0, 4e6) +
+  ylim(0, 6) +
+  scale_color_manual(values = colors)
+```
