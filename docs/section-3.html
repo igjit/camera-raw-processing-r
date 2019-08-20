@@ -23,7 +23,7 @@
 
 
 
-<meta name="date" content="2019-08-19" />
+<meta name="date" content="2019-08-20" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -161,6 +161,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.4" data-path="section-3.html"><a href="section-3.html#section-3.4"><i class="fa fa-check"></i><b>3.4</b> シェーディング補正</a><ul>
 <li class="chapter" data-level="3.4.1" data-path="section-3.html"><a href="section-3.html#section-3.4.1"><i class="fa fa-check"></i><b>3.4.1</b> レンズシェーディングの確認</a></li>
 <li class="chapter" data-level="3.4.2" data-path="section-3.html"><a href="section-3.html#section-3.4.2"><i class="fa fa-check"></i><b>3.4.2</b> レンズシェーディングのモデル化</a></li>
+<li class="chapter" data-level="3.4.3" data-path="section-3.html"><a href="section-3.html#section-3.4.3"><i class="fa fa-check"></i><b>3.4.3</b> レンズシェーディング補正</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -414,6 +415,28 @@ model_df &lt;-<span class="st"> </span>models <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">6</span>) <span class="op">+</span>
 <span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> colors)</code></pre>
 <p><img src="_main_files/figure-html/unnamed-chunk-51-1.png" width="672" /></p>
+</div>
+<div id="section-3.4.3" class="section level3">
+<h3><span class="header-section-number">3.4.3</span> レンズシェーディング補正</h3>
+<p>レンズシェーディング補正前 (ブラックレベル補正のみ)</p>
+<pre class="sourceCode r"><code class="sourceCode r">blc_raw <span class="op">%&gt;%</span><span class="st"> </span>t <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-52-1.png" width="672" /></p>
+<p>各画素に掛け合わせるゲインを計算</p>
+<pre class="sourceCode r"><code class="sourceCode r">gain_map &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">dim</span>(raw_array))
+<span class="cf">for</span> (y <span class="cf">in</span> <span class="kw">seq</span>(<span class="dv">1</span>, h, <span class="dv">2</span>)) {
+  <span class="cf">for</span> (x <span class="cf">in</span> <span class="kw">seq</span>(<span class="dv">1</span>, w, <span class="dv">2</span>)) {
+    r2 &lt;-<span class="st"> </span>(y <span class="op">-</span><span class="st"> </span>center_y) <span class="op">^</span><span class="st"> </span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span>(x <span class="op">-</span><span class="st"> </span>center_x) <span class="op">^</span><span class="st"> </span><span class="dv">2</span>
+    gain &lt;-<span class="st"> </span>model_df<span class="op">$</span>intercept <span class="op">+</span><span class="st"> </span>model_df<span class="op">$</span>slope <span class="op">*</span><span class="st"> </span>r2
+    gain_map[y, x] &lt;-<span class="st"> </span>gain[<span class="dv">1</span>]
+    gain_map[y, x <span class="op">+</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span>gain[<span class="dv">2</span>]
+    gain_map[y <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, x] &lt;-<span class="st"> </span>gain[<span class="dv">3</span>]
+    gain_map[y <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, x <span class="op">+</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span>gain[<span class="dv">4</span>]
+  }
+}</code></pre>
+<p>ゲインをブラックレベル補正した画像に掛け合わせる</p>
+<pre class="sourceCode r"><code class="sourceCode r">lsc_raw &lt;-<span class="st"> </span>blc_raw <span class="op">*</span><span class="st"> </span>gain_map</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">lsc_raw <span class="op">%&gt;%</span><span class="st"> </span>normalize <span class="op">%&gt;%</span><span class="st"> </span>t <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-55-1.png" width="672" /></p>
 
 </div>
 </div>
