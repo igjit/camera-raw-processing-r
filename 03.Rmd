@@ -339,3 +339,15 @@ lsc_raw <- blc_raw * gain_map
 ```{r cache=TRUE}
 lsc_raw %>% normalize %>% t %>% as.cimg %>% plot
 ```
+
+レンズシェーディング補正後のフルカラー画像
+
+```{r cache=TRUE}
+shading_img <- lsc_raw %>%
+  white_balance(raw$camera_whitebalance, raw$raw_colors) %>%
+  demosaic(raw$raw_colors, raw$raw_pattern) %>%
+  color_correction_matrix(color_matrix) %>%
+  `/`(white_level) %>%
+  gamma_correction(2.2)
+shading_img %>% ta %>% as.cimg %>% plot
+```
