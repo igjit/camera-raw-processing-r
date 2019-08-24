@@ -23,7 +23,7 @@
 
 
 
-<meta name="date" content="2019-08-20" />
+<meta name="date" content="2019-08-24" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -437,6 +437,15 @@ model_df &lt;-<span class="st"> </span>models <span class="op">%&gt;%</span>
 <pre class="sourceCode r"><code class="sourceCode r">lsc_raw &lt;-<span class="st"> </span>blc_raw <span class="op">*</span><span class="st"> </span>gain_map</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r">lsc_raw <span class="op">%&gt;%</span><span class="st"> </span>normalize <span class="op">%&gt;%</span><span class="st"> </span>t <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
 <p><img src="_main_files/figure-html/unnamed-chunk-55-1.png" width="672" /></p>
+<p>レンズシェーディング補正後のフルカラー画像</p>
+<pre class="sourceCode r"><code class="sourceCode r">shading_img &lt;-<span class="st"> </span>lsc_raw <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">white_balance</span>(raw<span class="op">$</span>camera_whitebalance, raw<span class="op">$</span>raw_colors) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">demosaic</span>(raw<span class="op">$</span>raw_colors, raw<span class="op">$</span>raw_pattern) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">color_correction_matrix</span>(color_matrix) <span class="op">%&gt;%</span>
+<span class="st">  `</span><span class="dt">/</span><span class="st">`</span>(white_level) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">gamma_correction</span>(<span class="fl">2.2</span>)
+shading_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-56-1.png" width="672" /></p>
 
 </div>
 </div>
