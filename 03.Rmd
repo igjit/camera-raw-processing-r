@@ -351,3 +351,14 @@ shading_img <- lsc_raw %>%
   gamma_correction(2.2)
 shading_img %>% ta %>% as.cimg %>% plot
 ```
+
+残っているシェーディング量を測定
+
+```{r cache=TRUE}
+shading_after <- horizontal_shading_profile(shading_img, w, center_y - 16)
+
+ggplot(gather(shading_after, "color", "value", -pos), aes(x = pos, y = value)) +
+  geom_line(aes(color = color)) +
+  ylim(0, 1) +
+  scale_color_manual(values = c(r = "red", g = "green", b = "blue"))
+```
