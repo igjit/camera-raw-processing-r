@@ -23,7 +23,7 @@
 
 
 
-<meta name="date" content="2019-08-25" />
+<meta name="date" content="2019-08-26" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -162,6 +162,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.4.1" data-path="section-3.html"><a href="section-3.html#section-3.4.1"><i class="fa fa-check"></i><b>3.4.1</b> レンズシェーディングの確認</a></li>
 <li class="chapter" data-level="3.4.2" data-path="section-3.html"><a href="section-3.html#section-3.4.2"><i class="fa fa-check"></i><b>3.4.2</b> レンズシェーディングのモデル化</a></li>
 <li class="chapter" data-level="3.4.3" data-path="section-3.html"><a href="section-3.html#section-3.4.3"><i class="fa fa-check"></i><b>3.4.3</b> レンズシェーディング補正</a></li>
+<li class="chapter" data-level="3.4.4" data-path="section-3.html"><a href="section-3.html#section-3.4.4"><i class="fa fa-check"></i><b>3.4.4</b> 通常画像への適用</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -454,6 +455,35 @@ shading_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span clas
 <span class="st">  </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span>
 <span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="dt">r =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">g =</span> <span class="st">&quot;green&quot;</span>, <span class="dt">b =</span> <span class="st">&quot;blue&quot;</span>))</code></pre>
 <p><img src="_main_files/figure-html/unnamed-chunk-57-1.png" width="672" /></p>
+</div>
+<div id="section-3.4.4" class="section level3">
+<h3><span class="header-section-number">3.4.4</span> 通常画像への適用</h3>
+<pre class="sourceCode r"><code class="sourceCode r">raw_file &lt;-<span class="st"> &quot;chart.jpg&quot;</span>
+raw &lt;-<span class="st"> </span>rawpy<span class="op">$</span><span class="kw">imread</span>(raw_file)
+raw_array &lt;-<span class="st"> </span>raw<span class="op">$</span>raw_image
+
+blc_raw &lt;-<span class="st"> </span>raw_array <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">black_level_correction</span>(raw<span class="op">$</span>black_level_per_channel, raw<span class="op">$</span>raw_pattern)</code></pre>
+<p>レンズシェーディング補正なし</p>
+<pre class="sourceCode r"><code class="sourceCode r">no_shading_img &lt;-<span class="st"> </span>blc_raw <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">white_balance</span>(raw<span class="op">$</span>camera_whitebalance, raw<span class="op">$</span>raw_colors) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">demosaic</span>(raw<span class="op">$</span>raw_colors, raw<span class="op">$</span>raw_pattern) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">color_correction_matrix</span>(color_matrix) <span class="op">%&gt;%</span>
+<span class="st">  `</span><span class="dt">/</span><span class="st">`</span>(white_level) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">gamma_correction</span>(<span class="fl">2.2</span>)</code></pre>
+<p>レンズシェーディング補正あり</p>
+<pre class="sourceCode r"><code class="sourceCode r">shading_img &lt;-<span class="st"> </span>blc_raw <span class="op">%&gt;%</span>
+<span class="st">  `</span><span class="dt">*</span><span class="st">`</span>(gain_map) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">white_balance</span>(raw<span class="op">$</span>camera_whitebalance, raw<span class="op">$</span>raw_colors) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">demosaic</span>(raw<span class="op">$</span>raw_colors, raw<span class="op">$</span>raw_pattern) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">color_correction_matrix</span>(color_matrix) <span class="op">%&gt;%</span>
+<span class="st">  `</span><span class="dt">/</span><span class="st">`</span>(white_level) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">gamma_correction</span>(<span class="fl">2.2</span>)</code></pre>
+<p>比較</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))
+no_shading_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">plot</span>(<span class="dt">main =</span> <span class="st">&quot;レンズシェーディング補正なし&quot;</span>)
+shading_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">plot</span>(<span class="dt">main =</span> <span class="st">&quot;レンズシェーディング補正あり&quot;</span>)</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-61-1.png" width="672" /></p>
 
 </div>
 </div>
