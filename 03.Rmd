@@ -362,3 +362,45 @@ ggplot(gather(shading_after, "color", "value", -pos), aes(x = pos, y = value)) +
   ylim(0, 1) +
   scale_color_manual(values = c(r = "red", g = "green", b = "blue"))
 ```
+
+### 通常画像への適用
+
+```{r}
+raw_file <- "chart.jpg"
+raw <- rawpy$imread(raw_file)
+raw_array <- raw$raw_image
+
+blc_raw <- raw_array %>%
+  black_level_correction(raw$black_level_per_channel, raw$raw_pattern)
+```
+
+レンズシェーディング補正なし
+
+```{r cache=TRUE}
+no_shading_img <- blc_raw %>%
+  white_balance(raw$camera_whitebalance, raw$raw_colors) %>%
+  demosaic(raw$raw_colors, raw$raw_pattern) %>%
+  color_correction_matrix(color_matrix) %>%
+  `/`(white_level) %>%
+  gamma_correction(2.2)
+```
+
+レンズシェーディング補正あり
+
+```{r cache=TRUE}
+shading_img <- blc_raw %>%
+  `*`(gain_map) %>%
+  white_balance(raw$camera_whitebalance, raw$raw_colors) %>%
+  demosaic(raw$raw_colors, raw$raw_pattern) %>%
+  color_correction_matrix(color_matrix) %>%
+  `/`(white_level) %>%
+  gamma_correction(2.2)
+```
+
+比較
+
+```{r cache=TRUE}
+par(mfrow = c(1, 2))
+no_shading_img %>% ta %>% as.cimg %>% plot(main = "レンズシェーディング補正なし")
+shading_img %>% ta %>% as.cimg %>% plot(main = "レンズシェーディング補正あり")
+```
