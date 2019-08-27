@@ -404,3 +404,41 @@ par(mfrow = c(1, 2))
 no_shading_img %>% ta %>% as.cimg %>% plot(main = "レンズシェーディング補正なし")
 shading_img %>% ta %>% as.cimg %>% plot(main = "レンズシェーディング補正あり")
 ```
+
+良さそうなので補正処理を関数にする
+
+```{r}
+lens_shading_correction <- function(raw_array, coef) {
+  gain_map <- array(0, dim(raw_array))
+  h <- nrow(raw_array)
+  w <- ncol(raw_array)
+  center_y <- h / 2
+  center_x <- w / 2
+
+  x <- 1:w - center_x
+  y <- 1:h - center_y
+  r2 <- matrix(y, h, w, byrow = FALSE) ^ 2 + matrix(x, h, w, byrow = TRUE) ^ 2
+
+  gain_map[c(T, F), c(T, F)] <- r2[c(T, F), c(T, F)] * coef[1,]$slope + coef[1,]$intercept
+  gain_map[c(T, F), c(F, T)] <- r2[c(T, F), c(F, T)] * coef[2,]$slope + coef[2,]$intercept
+  gain_map[c(F, T), c(T, F)] <- r2[c(F, T), c(T, F)] * coef[3,]$slope + coef[3,]$intercept
+  gain_map[c(F, T), c(F, T)] <- r2[c(F, T), c(F, T)] * coef[4,]$slope + coef[4,]$intercept
+
+  raw_array * gain_map
+}
+```
+
+確認
+
+```{r cache=TRUE}
+coef <- model_df %>% select(-color)
+shading_img2 <- blc_raw %>%
+  lens_shading_correction(coef) %>%
+  white_balance(raw$camera_whitebalance, raw$raw_colors) %>%
+  demosaic(raw$raw_colors, raw$raw_pattern) %>%
+  color_correction_matrix(color_matrix) %>%
+  `/`(white_level) %>%
+  gamma_correction(2.2)
+
+shading_img2 %>% ta %>% as.cimg %>% plot
+```
