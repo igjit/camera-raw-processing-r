@@ -23,7 +23,7 @@
 
 
 
-<meta name="date" content="2019-08-26" />
+<meta name="date" content="2019-08-27" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -484,6 +484,37 @@ blc_raw &lt;-<span class="st"> </span>raw_array <span class="op">%&gt;%</span>
 no_shading_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">plot</span>(<span class="dt">main =</span> <span class="st">&quot;レンズシェーディング補正なし&quot;</span>)
 shading_img <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">plot</span>(<span class="dt">main =</span> <span class="st">&quot;レンズシェーディング補正あり&quot;</span>)</code></pre>
 <p><img src="_main_files/figure-html/unnamed-chunk-61-1.png" width="672" /></p>
+<p>良さそうなので補正処理を関数にする</p>
+<pre class="sourceCode r"><code class="sourceCode r">lens_shading_correction &lt;-<span class="st"> </span><span class="cf">function</span>(raw_array, coef) {
+  gain_map &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">dim</span>(raw_array))
+  h &lt;-<span class="st"> </span><span class="kw">nrow</span>(raw_array)
+  w &lt;-<span class="st"> </span><span class="kw">ncol</span>(raw_array)
+  center_y &lt;-<span class="st"> </span>h <span class="op">/</span><span class="st"> </span><span class="dv">2</span>
+  center_x &lt;-<span class="st"> </span>w <span class="op">/</span><span class="st"> </span><span class="dv">2</span>
+
+  x &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>w <span class="op">-</span><span class="st"> </span>center_x
+  y &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>h <span class="op">-</span><span class="st"> </span>center_y
+  r2 &lt;-<span class="st"> </span><span class="kw">matrix</span>(y, h, w, <span class="dt">byrow =</span> <span class="ot">FALSE</span>) <span class="op">^</span><span class="st"> </span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span><span class="kw">matrix</span>(x, h, w, <span class="dt">byrow =</span> <span class="ot">TRUE</span>) <span class="op">^</span><span class="st"> </span><span class="dv">2</span>
+
+  gain_map[<span class="kw">c</span>(T, F), <span class="kw">c</span>(T, F)] &lt;-<span class="st"> </span>r2[<span class="kw">c</span>(T, F), <span class="kw">c</span>(T, F)] <span class="op">*</span><span class="st"> </span>coef[<span class="dv">1</span>,]<span class="op">$</span>slope <span class="op">+</span><span class="st"> </span>coef[<span class="dv">1</span>,]<span class="op">$</span>intercept
+  gain_map[<span class="kw">c</span>(T, F), <span class="kw">c</span>(F, T)] &lt;-<span class="st"> </span>r2[<span class="kw">c</span>(T, F), <span class="kw">c</span>(F, T)] <span class="op">*</span><span class="st"> </span>coef[<span class="dv">2</span>,]<span class="op">$</span>slope <span class="op">+</span><span class="st"> </span>coef[<span class="dv">2</span>,]<span class="op">$</span>intercept
+  gain_map[<span class="kw">c</span>(F, T), <span class="kw">c</span>(T, F)] &lt;-<span class="st"> </span>r2[<span class="kw">c</span>(F, T), <span class="kw">c</span>(T, F)] <span class="op">*</span><span class="st"> </span>coef[<span class="dv">3</span>,]<span class="op">$</span>slope <span class="op">+</span><span class="st"> </span>coef[<span class="dv">3</span>,]<span class="op">$</span>intercept
+  gain_map[<span class="kw">c</span>(F, T), <span class="kw">c</span>(F, T)] &lt;-<span class="st"> </span>r2[<span class="kw">c</span>(F, T), <span class="kw">c</span>(F, T)] <span class="op">*</span><span class="st"> </span>coef[<span class="dv">4</span>,]<span class="op">$</span>slope <span class="op">+</span><span class="st"> </span>coef[<span class="dv">4</span>,]<span class="op">$</span>intercept
+
+  raw_array <span class="op">*</span><span class="st"> </span>gain_map
+}</code></pre>
+<p>確認</p>
+<pre class="sourceCode r"><code class="sourceCode r">coef &lt;-<span class="st"> </span>model_df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>color)
+shading_img2 &lt;-<span class="st"> </span>blc_raw <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">lens_shading_correction</span>(coef) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">white_balance</span>(raw<span class="op">$</span>camera_whitebalance, raw<span class="op">$</span>raw_colors) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">demosaic</span>(raw<span class="op">$</span>raw_colors, raw<span class="op">$</span>raw_pattern) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">color_correction_matrix</span>(color_matrix) <span class="op">%&gt;%</span>
+<span class="st">  `</span><span class="dt">/</span><span class="st">`</span>(white_level) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">gamma_correction</span>(<span class="fl">2.2</span>)
+
+shading_img2 <span class="op">%&gt;%</span><span class="st"> </span>ta <span class="op">%&gt;%</span><span class="st"> </span>as.cimg <span class="op">%&gt;%</span><span class="st"> </span>plot</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-63-1.png" width="672" /></p>
 
 </div>
 </div>
